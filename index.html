@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hello, Electronics and Communications Engineers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A130F;
+    --panel:#101C17;
+    --panel-line:#1C2E27;
+    --copper:#C97B3D;
+    --copper-bright:#E39A5A;
+    --signal:#6EE7D0;
+    --text:#EDEAE0;
+    --text-dim:#8FA39A;
+    --text-dimmer:#5C6E66;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(110,231,208,0.05), transparent 40%),
+      radial-gradient(circle at 88% 92%, rgba(201,123,61,0.07), transparent 45%),
+      var(--bg);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* faint PCB grid texture */
+  .grid-bg{
+    position:fixed;
+    inset:0;
+    background-image:
+      linear-gradient(rgba(110,231,208,0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(110,231,208,0.035) 1px, transparent 1px);
+    background-size:34px 34px;
+    pointer-events:none;
+    z-index:0;
+    mask-image:radial-gradient(ellipse 80% 60% at 50% 20%, black 20%, transparent 75%);
+  }
+
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--signal); outline-offset:3px;}
+
+  .wrap{
+    position:relative;
+    z-index:1;
+    max-width:920px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+
+  /* ---------- HEADER / DATASHEET STRIP ---------- */
+  .datastrip{
+    border-bottom:1px solid var(--panel-line);
+    padding:16px 0;
+  }
+  .datastrip .wrap{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:8px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    color:var(--text-dimmer);
+    text-transform:uppercase;
+  }
+  .datastrip .dot{
+    color:var(--signal);
+  }
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    padding:88px 0 64px;
+    position:relative;
+  }
+  .pin{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:.16em;
+    color:var(--copper-bright);
+    text-transform:uppercase;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:28px;
+  }
+  .pin::before{
+    content:"";
+    width:8px;height:8px;
+    border-radius:50%;
+    background:var(--signal);
+    box-shadow:0 0 10px 2px rgba(110,231,208,0.6);
+  }
+  h1{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:700;
+    font-size:clamp(2.1rem, 5.6vw, 3.6rem);
+    line-height:1.12;
+    margin:0 0 24px;
+    letter-spacing:-0.01em;
+  }
+  h1 .accent{ color:var(--copper-bright); }
+  .lede{
+    max-width:56ch;
+    font-size:1.08rem;
+    color:var(--text-dim);
+    margin:0 0 6px;
+  }
+  .lede strong{ color:var(--text); font-weight:500; }
+
+  /* ---------- SECTION TRACE DIVIDER ---------- */
+  .trace-divider{
+    display:block;
+    width:100%;
+    height:28px;
+    margin:8px 0 6px;
+  }
+  .trace-divider path{
+    stroke:var(--panel-line);
+    stroke-width:1.5;
+    fill:none;
+  }
+  .trace-divider circle{
+    fill:var(--bg);
+    stroke:var(--copper);
+    stroke-width:1.5;
+  }
+
+  .section-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--text-dimmer);
+    margin:0 0 6px;
+  }
+  .section-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.5rem;
+    font-weight:600;
+    color:var(--text);
+    margin:0 0 40px;
+  }
+
+  /* ---------- BUS / CARD LIST ---------- */
+  main{ padding:40px 0 20px; position:relative;}
+
+  .bus{
+    position:relative;
+    padding-left:34px;
+  }
+  /* the vertical trunk line */
+  .bus::before{
+    content:"";
+    position:absolute;
+    left:9px;
+    top:6px;
+    bottom:6px;
+    width:2px;
+    background:linear-gradient(to bottom, var(--copper) 0%, var(--panel-line) 6%, var(--panel-line) 94%, var(--copper) 100%);
+  }
+
+  .component{
+    position:relative;
+    margin-bottom:22px;
+  }
+  /* via/node where card connects to trunk */
+  .component::before{
+    content:"";
+    position:absolute;
+    left:-34px;
+    top:32px;
+    width:11px;
+    height:11px;
+    border-radius:50%;
+    background:var(--bg);
+    border:2px solid var(--copper);
+    z-index:2;
+  }
+  /* horizontal lead from trunk to card */
+  .component::after{
+    content:"";
+    position:absolute;
+    left:-24px;
+    top:37px;
+    width:24px;
+    height:1.5px;
+    background:var(--copper);
+    opacity:.55;
+  }
+
+  .card{
+    display:block;
+    text-decoration:none;
+    background:var(--panel);
+    border:1px solid var(--panel-line);
+    border-radius:3px;
+    padding:22px 24px 22px 26px;
+    transition:border-color .18s ease, transform .18s ease, background .18s ease;
+  }
+  .card:hover, .card:focus-visible{
+    border-color:var(--copper);
+    background:#132119;
+    transform:translateX(2px);
+  }
+  .card:hover .designator, .card:focus-visible .designator{
+    color:var(--signal);
+  }
+  .card:hover .go, .card:focus-visible .go{
+    color:var(--copper-bright);
+    transform:translateX(3px);
+  }
+
+  .card-top{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:8px;
+  }
+  .designator{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    font-size:.82rem;
+    color:var(--copper);
+    transition:color .18s ease;
+    letter-spacing:.03em;
+  }
+  .card h3{
+    margin:0;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.1rem;
+    font-weight:600;
+    color:var(--text);
+  }
+  .card p{
+    margin:0 0 14px;
+    color:var(--text-dim);
+    font-size:.95rem;
+    max-width:60ch;
+  }
+  .card-foot{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.75rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .host{
+    color:var(--text-dimmer);
+  }
+  .go{
+    color:var(--text-dim);
+    transition:color .18s ease, transform .18s ease;
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+  }
+
+  /* ---------- LAYER STACK (software capabilities) ---------- */
+  .stack{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  .layer{
+    background:var(--panel);
+    border:1px solid var(--panel-line);
+    border-left:2px solid var(--copper);
+    border-radius:3px;
+    padding:20px 22px;
+  }
+  .layer-top{
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+    margin-bottom:8px;
+  }
+  .layer-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    font-size:.82rem;
+    color:var(--signal);
+    letter-spacing:.03em;
+  }
+  .layer h3{
+    margin:0;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:1.02rem;
+    font-weight:600;
+    color:var(--text);
+  }
+  .layer p{
+    margin:0 0 14px;
+    color:var(--text-dim);
+    font-size:.9rem;
+  }
+  .pins{
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+  }
+  .pin-tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:.72rem;
+    letter-spacing:.02em;
+    padding:4px 9px;
+    border:1px solid var(--panel-line);
+    border-radius:2px;
+    color:var(--text-dim);
+    background:rgba(110,231,208,0.03);
+  }
+
+  @media (max-width:680px){
+    .stack{ grid-template-columns:1fr; }
+  }
+
+  /* ---------- NOTE / FOOTER ---------- */
+  .note{
+    margin:56px 0 8px;
+    padding:20px 22px;
+    border:1px dashed var(--panel-line);
+    border-radius:3px;
+    font-size:.92rem;
+    color:var(--text-dim);
+  }
+  .note strong{ color:var(--text); }
+
+  footer{
+    margin-top:64px;
+    padding:28px 0 60px;
+    border-top:1px solid var(--panel-line);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    color:var(--text-dimmer);
+    text-transform:uppercase;
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+
+  @media (max-width:560px){
+    header.hero{ padding:56px 0 40px; }
+    .bus{ padding-left:26px; }
+    .component::before{ left:-26px; }
+    .component::after{ left:-18px; width:18px; }
+    .card{ padding:18px 16px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior:auto; }
+    .card{ transition:none; }
+  }
+</style>
+</head>
+<body>
+<div class="grid-bg" aria-hidden="true"></div>
+
+<div class="datastrip">
+  <div class="wrap">
+    <span>DOC / CAREER-BRIEF-ECE</span>
+    <span><span class="dot">●</span> REGION: INDIA</span>
+    <span>REV 2026.08</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <span class="pin">Signal Acquired</span>
+    <h1>Hello, Electronics and<br>Communications <span class="accent">Engineers.</span></h1>
+    <p class="lede">You've spent years with datasheets, breadboards, and simulation waveforms. <strong>Here's where that skill set is hiring right now</strong> — eight large, active industries in India built on ECE fundamentals, each with a direct link to start exploring roles, programs, and the organisations shaping the sector.</p>
+  </header>
+
+  <svg class="trace-divider" viewBox="0 0 920 28" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,14 H420 M500,14 H920"/>
+    <circle cx="460" cy="14" r="5"/>
+  </svg>
+
+  <main>
+    
+    <!--  ROBOTICS & HUMANOID R&D RESOURCES SECTION
+  =========================================
+  Drop this <section> anywhere inside your existing <body>, ideally after
+  the industries grid and before your footer. It reuses the copper/signal-cyan
+  PCB dark aesthetic and IBM Plex fonts already loaded on the page.
+
+  If IBM Plex Mono / IBM Plex Sans are not already linked in your <head>,
+  add this once:
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  All links were checked in August 2026. Robotics/humanoid company links move
+  fast — plan to spot-check this section every few months.
+-->
+
+<style>
+  #robotics-resources {
+    --copper: #c87d4a;
+    --copper-bright: #e8a878;
+    --signal-cyan: #4ad9e0;
+    --pcb-bg: #0b0f10;
+    --pcb-panel: #11171a;
+    --pcb-line: #1e2b2e;
+    --text-main: #d8e2e3;
+    --text-dim: #8ba0a3;
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--pcb-bg);
+    color: var(--text-main);
+    padding: 5rem 1.5rem;
+    border-top: 1px solid var(--pcb-line);
+  }
+
+  #robotics-resources .rr-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  #robotics-resources .rr-eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--signal-cyan);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.8rem;
+  }
+  #robotics-resources .rr-eyebrow::before {
+    content: "";
+    width: 22px;
+    height: 1px;
+    background: var(--signal-cyan);
+    display: inline-block;
+  }
+
+  #robotics-resources h2 {
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 600;
+    font-size: clamp(1.6rem, 3vw, 2.3rem);
+    margin: 0 0 0.75rem;
+    color: #f2f6f6;
+  }
+
+  #robotics-resources .rr-intro {
+    max-width: 62ch;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 3rem;
+    font-size: 0.98rem;
+  }
+
+  #robotics-resources .rr-group {
+    margin-bottom: 3rem;
+  }
+
+  #robotics-resources .rr-group-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--pcb-line);
+    padding-bottom: 0.6rem;
+    margin-bottom: 1.2rem;
+  }
+
+  #robotics-resources .rr-group-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--copper-bright);
+    border: 1px solid var(--copper);
+    padding: 0.15rem 0.5rem;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  #robotics-resources .rr-group-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1rem;
+    color: var(--text-main);
+    letter-spacing: 0.02em;
+  }
+
+  #robotics-resources .rr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1px;
+    background: var(--pcb-line);
+    border: 1px solid var(--pcb-line);
+  }
+
+  #robotics-resources .rr-card {
+    background: var(--pcb-panel);
+    padding: 1.1rem 1.2rem;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    position: relative;
+    transition: background 0.15s ease;
+  }
+  #robotics-resources .rr-card:hover {
+    background: #161e21;
+  }
+  #robotics-resources .rr-card:hover .rr-card-title {
+    color: var(--signal-cyan);
+  }
+  #robotics-resources .rr-card:hover .rr-arrow {
+    transform: translate(2px, -2px);
+    opacity: 1;
+  }
+
+  #robotics-resources .rr-card-title {
+    font-weight: 600;
+    font-size: 0.94rem;
+    color: var(--text-main);
+    margin-bottom: 0.35rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  #robotics-resources .rr-arrow {
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--copper);
+    opacity: 0.6;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  #robotics-resources .rr-card-desc {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  #robotics-resources .rr-card-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--copper-bright);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 0.55rem;
+  }
+
+  #robotics-resources .rr-note {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+    border-left: 2px solid var(--copper);
+    padding: 0.6rem 0 0.6rem 0.9rem;
+    margin-top: 2.5rem;
+    line-height: 1.6;
+  }
+</style>
+
+<Section> 
+ <section id="robotics-resources">
+  <div class="rr-inner">
+
+    <div class="rr-eyebrow">Live R&D &amp; Internship Map</div>
+    <h2>Robotics &amp; Humanoid Systems — Where the Work Is Actually Happening</h2>
+    <p class="rr-intro">
+      Beyond the eight core industries above, robotics and humanoid systems now pull directly
+      from ECE fundamentals — actuation, sensor fusion, embedded control, wireless links, and
+      power electronics. The links below track current commercial R&D worldwide, India's public
+      research infrastructure, and specific programs offering onsite lab work or internships to
+      graduate engineers and students.
+    </p>
+
+    <!-- GROUP 1: GLOBAL HUMANOID + ROBOTICS R&D -->
+    <div class="rr-group">
+      <div class="rr-group-head">
+        <span class="rr-group-tag">01</span>
+        <span class="rr-group-title">Global Humanoid &amp; Robotics R&amp;D</span>
+      </div>
+      <div class="rr-grid">
+
+        <a class="rr-card" href="https://bostondynamics.com/" target="_blank" rel="noopener">
+          <div class="rr-card-title">Boston Dynamics <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Electric Atlas — dynamic legged locomotion, whole-body control, now in early commercial deployment with Hyundai and research partners.</div>
+          <div class="rr-card-meta">USA · Industrial R&D</div>
+        </a>
+
+        <a class="rr-card" href="https://www.figure.ai/" target="_blank" rel="noopener">
+          <div class="rr-card-title">Figure AI <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Figure 03 humanoid with the Helix vision-language-action model; active manufacturing pilots including BMW.</div>
+          <div class="rr-card-meta">USA · Embodied AI</div>
+        </a>
+
+        <a class="rr-card" href="https://www.agilityrobotics.com/" target="_blank" rel="noopener">
+          <div class="rr-card-title">Agility Robotics <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Digit humanoid — one of the few platforms with verified paid commercial work in warehouse logistics.</div>
+          <div class="rr-card-meta">USA · Logistics Robotics</div>
+        </a>
+
+        <a class="rr-card" href="https://www.apptronik.com/" target="_blank" rel="noopener">
+          <div class="rr-card-title">Apptronik <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Apollo humanoid, built for industrial part-handling and kitting tasks; strong ties to NASA-derived robotics research.</div>
+          <div class="rr-card-meta">USA · Industrial Robotics</div>
+        </a>
+
+        <a class="rr-card" href="https://www.tesla.com/AI" target="_blank" rel="noopener">
+          <div class="rr-card-title">Tesla Optimus <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Vertically integrated humanoid program — in-house actuators, compute, and vision stack, deployed internally on factory lines.</div>
+          <div class="rr-card-meta">USA · Manufacturing Robotics</div>
+        </a>
+
+        <a class="rr-card" href="https://www.unitree.com/" target="_blank" rel="noopener">
+          <div class="rr-card-title">Unitree Robotics <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Lowest-cost commercially available humanoid and quadruped platforms (G1, H1, H2) — widely used in university and hobbyist labs.</div>
+          <div class="rr-card-meta">China · Accessible Hardware</div>
+        </a>
+
+        <a class="rr-card" href="https://www.iit.it/web/hhcm" target="_blank" rel="noopener">
+          <div class="rr-card-title">IIT Genoa — HHCM Lab <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Humanoids and Human Centred Mechatronics lab at Istituto Italiano di Tecnologia — compliant actuation, iCub, ergoCub, WALK-MAN.</div>
+          <div class="rr-card-meta">Italy · Academic Research</div>
+        </a>
+
+        <a class="rr-card" href="https://www.dlr.de/en/rm" target="_blank" rel="noopener">
+          <div class="rr-card-title">DLR Institute of Robotics &amp; Mechatronics <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">German Aerospace Center — space robotics, torque-controlled lightweight arms, humanoid hands; regularly hosts international student researchers.</div>
+          <div class="rr-card-meta">Germany · Government Lab</div>
+        </a>
+
+        <a class="rr-card" href="https://rsl.ethz.ch/" target="_blank" rel="noopener">
+          <div class="rr-card-title">ETH Zurich — Robotic Systems Lab <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Legged robotics (ANYmal) and learning-based control; publishes open thesis and guest-researcher positions.</div>
+          <div class="rr-card-meta">Switzerland · Academic Research</div>
+        </a>
+
+        <a class="rr-card" href="https://www.ri.cmu.edu/" target="_blank" rel="noopener">
+          <div class="rr-card-title">Carnegie Mellon — Robotics Institute <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">One of the largest robotics research bodies globally — manipulation, field robotics, human-robot interaction.</div>
+          <div class="rr-card-meta">USA · Academic Research</div>
+        </a>
+
+        <a class="rr-card" href="https://www.csail.mit.edu/" target="_blank" rel="noopener">
+          <div class="rr-card-title">MIT CSAIL <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Computer Science &amp; Artificial Intelligence Lab — robotics, perception, and embodied-AI research groups with visiting-student tracks.</div>
+          <div class="rr-card-meta">USA · Academic Research</div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- GROUP 2: INDIA — GOVERNMENT MISSIONS + PUBLIC R&D -->
+    <div class="rr-group">
+      <div class="rr-group-head">
+        <span class="rr-group-tag">02</span>
+        <span class="rr-group-title">India — Government Missions &amp; Public R&amp;D</span>
+      </div>
+      <div class="rr-grid">
+
+        <a class="rr-card" href="https://artpark.in/" target="_blank" rel="noopener">
+          <div class="rr-card-title">ARTPARK — IISc Bengaluru <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">National Technology Innovation Hub for Robotics &amp; Autonomous Systems under DST's NM-ICPS mission; funds research and startup projects.</div>
+          <div class="rr-card-meta">Govt. of India · DST NM-ICPS</div>
+        </a>
+
+        <a class="rr-card" href="https://www.ihfc.co.in/" target="_blank" rel="noopener">
+          <div class="rr-card-title">IHFC — IIT Delhi <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">I-Hub Foundation for Cobotics — legged and wheeled robotics, exoskeletons, surgical robotics, agriculture and disaster-response platforms.</div>
+          <div class="rr-card-meta">Govt. of India · DST NM-ICPS</div>
+        </a>
+
+        <a class="rr-card" href="https://tihan.iith.ac.in/" target="_blank" rel="noopener">
+          <div class="rr-card-title">TiHAN — IIT Hyderabad <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Technology Innovation Hub on Autonomous Navigation — UAVs, autonomous ground vehicles, testbeds open to student projects.</div>
+          <div class="rr-card-meta">Govt. of India · DST NM-ICPS</div>
+        </a>
+
+        <a class="rr-card" href="https://www.drdo.gov.in/drdo/centre-artificial-intelligence-robotics-cair" target="_blank" rel="noopener">
+          <div class="rr-card-title">DRDO — CAIR <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Centre for Artificial Intelligence &amp; Robotics, Bengaluru — defence robotics, autonomous systems, AI; accepts student interns via lab-wise application.</div>
+          <div class="rr-card-meta">Govt. of India · Defence R&D</div>
+        </a>
+
+        <a class="rr-card" href="https://www.isro.gov.in/InternshipProgramme.html" target="_blank" rel="noopener">
+          <div class="rr-card-title">ISRO Internship Programme <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Centre-wise internships at VSSC, URSC, SAC, and other ISRO units — rover mechanisms, satellite systems, embedded control.</div>
+          <div class="rr-card-meta">Govt. of India · Space R&D</div>
+        </a>
+
+        <a class="rr-card" href="https://www.csir.res.in/" target="_blank" rel="noopener">
+          <div class="rr-card-title">CSIR Labs (CEERI, CMERI, NAL) <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">CSIR-CEERI (Pilani) for electronics/embedded R&D and CSIR-CMERI (Durgapur) for mechanical/robotics R&D both run trainee and project-student programs.</div>
+          <div class="rr-card-meta">Govt. of India · CSIR Network</div>
+        </a>
+
+        <a class="rr-card" href="https://www.e-yantra.org/" target="_blank" rel="noopener">
+          <div class="rr-card-title">e-Yantra — IIT Bombay <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Ministry of Education–funded robotics outreach; the annual eYRC competition offers top performers paid 6–8 week onsite internships at IIT Bombay.</div>
+          <div class="rr-card-meta">Govt. of India · Ministry of Education</div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- GROUP 3: INDIA — ACADEMIC LABS -->
+    <div class="rr-group">
+      <div class="rr-group-head">
+        <span class="rr-group-tag">03</span>
+        <span class="rr-group-title">India — Institute Robotics Labs</span>
+      </div>
+      <div class="rr-grid">
+
+        <a class="rr-card" href="https://robotics.iiit.ac.in/" target="_blank" rel="noopener">
+          <div class="rr-card-title">Robotics Research Center — IIIT Hyderabad <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Aerial and ground robotics, vision, navigation, multi-robot systems; regularly takes summer research students.</div>
+          <div class="rr-card-meta">IIIT Hyderabad</div>
+        </a>
+
+        <a class="rr-card" href="https://mae.iith.ac.in/labs/mdl/new/index.html" target="_blank" rel="noopener">
+          <div class="rr-card-title">Robotics &amp; Intelligent Systems Lab — IIT Hyderabad <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Humanoid robots, biped walkers, quadrupeds, search-and-rescue mobile robots.</div>
+          <div class="rr-card-meta">IIT Hyderabad</div>
+        </a>
+
+        <a class="rr-card" href="https://research.iitgn.ac.in/robotics/" target="_blank" rel="noopener">
+          <div class="rr-card-title">IITGN Robotics Lab <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Manipulation and grasping for humanoids and bi-manual robots, soft robotics, learning-based control.</div>
+          <div class="rr-card-meta">IIT Gandhinagar</div>
+        </a>
+
+        <a class="rr-card" href="https://www.iitk.ac.in/me/robotics-and-automation" target="_blank" rel="noopener">
+          <div class="rr-card-title">Robotics &amp; Automation Group — IIT Kanpur <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Parallel manipulators, humanoid biped design/control, exoskeletons for rehabilitation, mobile-manipulator motion planning.</div>
+          <div class="rr-card-meta">IIT Kanpur</div>
+        </a>
+
+        <a class="rr-card" href="https://www.iitg.ac.in/cse/robotics/" target="_blank" rel="noopener">
+          <div class="rr-card-title">Robotics Lab — IIT Guwahati <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Networked mobile robots, distributed swarm intelligence, cyber-physical systems.</div>
+          <div class="rr-card-meta">IIT Guwahati</div>
+        </a>
+
+        <a class="rr-card" href="https://www.rsi.org.in/" target="_blank" rel="noopener">
+          <div class="rr-card-title">Robotics Society of India <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">National professional body — conferences, Robocon India, and industry-academia project listings.</div>
+          <div class="rr-card-meta">Professional Body</div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- GROUP 4: ONSITE INTERNSHIP PATHWAYS -->
+    <div class="rr-group">
+      <div class="rr-group-head">
+        <span class="rr-group-tag">04</span>
+        <span class="rr-group-title">Onsite Internship &amp; Traineeship Pathways</span>
+      </div>
+      <div class="rr-grid">
+
+        <a class="rr-card" href="https://internship.aicte-india.org/" target="_blank" rel="noopener">
+          <div class="rr-card-title">AICTE Internship Portal <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Central listing of government and PSU internships for AICTE-approved engineering colleges, including electronics and robotics profiles.</div>
+          <div class="rr-card-meta">Govt. of India</div>
+        </a>
+
+        <a class="rr-card" href="https://www.drdo.gov.in/drdo/english/index.jsp?pg=job_student.jsp" target="_blank" rel="noopener">
+          <div class="rr-card-title">DRDO Student Internship Guidelines <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Lab-wise application process (LOR + NOC required) across 50+ DRDO labs, several with active robotics/embedded-systems work.</div>
+          <div class="rr-card-meta">Govt. of India · Defence</div>
+        </a>
+
+        <a class="rr-card" href="https://www.isro.gov.in/InternshipProgramme.html" target="_blank" rel="noopener">
+          <div class="rr-card-title">ISRO Centre-wise Internships <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Apply directly to VSSC, URSC, SAC, or NRSC — onsite lab access, mentorship from ISRO scientists, unpaid but high research value.</div>
+          <div class="rr-card-meta">Govt. of India · Space</div>
+        </a>
+
+        <a class="rr-card" href="https://www.e-yantra.org/eyrc" target="_blank" rel="noopener">
+          <div class="rr-card-title">e-Yantra Robotics Competition <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Six-month project-based robotics MOOC; top performers get shortlisted for paid onsite internships at IIT Bombay.</div>
+          <div class="rr-card-meta">IIT Bombay · Paid Track</div>
+        </a>
+
+        <a class="rr-card" href="https://internships.nasa.gov/" target="_blank" rel="noopener">
+          <div class="rr-card-title">NASA Internships (incl. JPL Robotics) <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Open to select international applicants via partnership programs; JPL runs dedicated robotics and mechatronics tracks.</div>
+          <div class="rr-card-meta">USA · Government Lab</div>
+        </a>
+
+        <a class="rr-card" href="https://www.tri.global/careers" target="_blank" rel="noopener">
+          <div class="rr-card-title">Toyota Research Institute — Careers &amp; Internships <span class="rr-arrow">↗</span></div>
+          <div class="rr-card-desc">Human-centered robotics and machine learning; posts research-intern roles for graduate engineers.</div>
+          <div class="rr-card-meta">USA · Industry R&D</div>
+        </a>
+
+      </div>
+    </div>
+
+    <div class="rr-note">
+      NOTE — link hygiene: humanoid-robotics and internship-portal URLs change often. Recommended:
+      re-verify this section quarterly, and mark each card with a "last checked" date once live on the site.
+    </div>
+
+  </div>
+</section>
+<Section>
+    <p class="section-label">// Eight points</p>
+    <h2 class="section-title">Eight industries, one degree.</h2>
+
+    <div class="bus">
+
+      <div class="component">
+        <a class="card" href="https://www.iesaonline.org/" target="_blank" rel="noopener noreferrer">
+          <div class="card-top">
+            <span class="designator">U1</span>
+            <h3>Embedded Systems</h3>
+          </div>
+          <p>Firmware, microcontrollers, and real-time control code sitting inside everything from washing machines to EV battery management units. India's largest source of first-job openings for ECE and CS-adjacent graduates.</p>
+          <div class="card-foot">
+            <span class="host">iesaonline.org</span>
+            <span class="go">Visit &rarr;</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="component">
+        <a class="card" href="https://www.coe-iot.com/" target="_blank" rel="noopener noreferrer">
+          <div class="card-top">
+            <span class="designator">U2</span>
+            <h3>Internet of Things (IoT)</h3>
+          </div>
+          <p>Sensor networks, edge devices, and connected infrastructure for smart cities, agriculture, and industrial monitoring. NASSCOM's Centre of Excellence for IoT tracks the startups and programs building this out.</p>
+          <div class="card-foot">
+            <span class="host">coe-iot.com</span>
+            <span class="go">Visit &rarr;</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="component">
+        <a class="card" href="https://vsi.org.in/" target="_blank" rel="noopener noreferrer">
+          <div class="card-top">
+            <span class="designator">U3</span>
+            <h3>VLSI &amp; Chip Design</h3>
+          </div>
+          <p>RTL, physical design, and verification roles at India's fast-growing design centres. The VLSI Society of India runs the student and campus programs that feed directly into this pipeline.</p>
+          <div class="card-foot">
+            <span class="host">vsi.org.in</span>
+            <span class="go">Visit &rarr;</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="component">
+        <a class="card" href="https://ism.gov.in/" target="_blank" rel="noopener noreferrer">
+          <div class="card-top">
+            <span class="designator">U4</span>
+            <h3>Semiconductor Manufacturing</h3>
+          </div>
+          <p>Fabs, OSAT, and assembly-and-test facilities coming up across Gujarat, Assam, and beyond under the India Semiconductor Mission — a genuinely new category of hardware jobs opening up for ECE graduates.</p>
+          <div class="card-foot">
+            <span class="host">ism.gov.in</span>
+            <span class="go">Visit &rarr;</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="component">
+        <a class="card" href="https://www.isro.gov.in/" target="_blank" rel="noopener noreferrer">
+          <div class="card-top">
+            <span class="designator">U5</span>
+            <h3>Satellite Communication</h3>
+          </div>
+          <p>RF systems, transponders, ground stations, and payload electronics. ISRO and its expanding network of private space companies recruit ECE graduates directly into communication and systems engineering roles.</p>
+          <div class="card-foot">
+            <span class="host">isro.gov.in</span>
+            <span class="go">Visit &rarr;</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="component">
+        <a class="card" href="https://icea.org.in/" target="_blank" rel="noopener noreferrer">
+          <div class="card-top">
+            <span class="designator">U6</span>
+            <h3>Mobile Phone Manufacturing</h3>
+          </div>
+          <p>Design, PCB assembly, and quality engineering behind India's mobile-and-electronics export boom. The India Cellular &amp; Electronics Association represents the manufacturers driving this scale-up.</p>
+          <div class="card-foot">
+            <span class="host">icea.org.in</span>
+            <span class="go">Visit &rarr;</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="component">
+        <a class="card" href="https://rs-india.org/" target="_blank" rel="noopener noreferrer">
+          <div class="card-top">
+            <span class="designator">U7</span>
+            <h3>Robotic Systems</h3>
+          </div>
+          <p>Actuators, motion control, sensor fusion, and autonomous navigation for industrial and service robots. The Robotics Society connects students and researchers with this fast-growing applied field.</p>
+          <div class="card-foot">
+            <span class="host">rs-india.org</span>
+            <span class="go">Visit &rarr;</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="component">
+        <a class="card" href="https://www.nasscom.in/ai/" target="_blank" rel="noopener noreferrer">
+          <div class="card-top">
+            <span class="designator">U8</span>
+            <h3>Intelligent Systems &amp; AI Hardware</h3>
+          </div>
+          <p>Signal processing, computer vision, and edge-AI inference running on custom silicon and embedded platforms — the layer where ECE know-how meets applied machine learning.</p>
+          <div class="card-foot">
+            <span class="host">nasscom.in/ai</span>
+            <span class="go">Visit &rarr;</span>
+          </div>
+        </a>
+      </div>
+
+    </div>
+
+    <div class="note">
+      <strong>Note:</strong> these links go to industry bodies, government missions, and professional societies — not job boards. Use them to understand each sector, then check the careers page of specific companies within it for entry-level openings.
+    </div>
+
+    <svg class="trace-divider" viewBox="0 0 920 28" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,14 H420 M500,14 H920"/>
+      <circle cx="460" cy="14" r="5"/>
+    </svg>
+
+    <p class="section-label">// The other half of the job</p>
+    <h2 class="section-title">Hardware gets built, but software gets it working.</h2>
+    <p class="lede" style="margin-bottom:36px;">A board that's designed, fabricated, and soldered still isn't a product. Getting from prototype to shipped, tested, field-commissioned hardware runs through six layers of software skill — stacked in roughly the order you'll use them.</p>
+
+    <div class="stack">
+
+      <div class="layer">
+        <div class="layer-top">
+          <span class="layer-tag">L1</span>
+          <h3>Design &amp; Simulation</h3>
+        </div>
+        <p>Model the circuit and the board before anything is fabricated.</p>
+        <div class="pins">
+          <span class="pin-tag">SPICE / LTspice</span>
+          <span class="pin-tag">Cadence Virtuoso</span>
+          <span class="pin-tag">Altium Designer</span>
+          <span class="pin-tag">KiCad</span>
+          <span class="pin-tag">MATLAB / Simulink</span>
+          <span class="pin-tag">Ansys HFSS</span>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-top">
+          <span class="layer-tag">L2</span>
+          <h3>Embedded &amp; Firmware</h3>
+        </div>
+        <p>Write and debug the code that actually runs on the silicon.</p>
+        <div class="pins">
+          <span class="pin-tag">Embedded C / C++</span>
+          <span class="pin-tag">FreeRTOS / Zephyr</span>
+          <span class="pin-tag">STM32CubeIDE</span>
+          <span class="pin-tag">Keil / MPLAB</span>
+          <span class="pin-tag">JTAG / SWD debug</span>
+          <span class="pin-tag">Git</span>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-top">
+          <span class="layer-tag">L3</span>
+          <h3>Test &amp; Measurement Automation</h3>
+        </div>
+        <p>Script the bench so every unit is verified the same way, fast.</p>
+        <div class="pins">
+          <span class="pin-tag">Python</span>
+          <span class="pin-tag">LabVIEW</span>
+          <span class="pin-tag">PyVISA / SCPI</span>
+          <span class="pin-tag">pytest</span>
+          <span class="pin-tag">ATE programming</span>
+          <span class="pin-tag">Oscilloscope / VNA control</span>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-top">
+          <span class="layer-tag">L4</span>
+          <h3>Manufacturing &amp; Quality</h3>
+        </div>
+        <p>Track yield, defects, and process control on the line.</p>
+        <div class="pins">
+          <span class="pin-tag">MES software</span>
+          <span class="pin-tag">Minitab / SPC</span>
+          <span class="pin-tag">AOI / X-ray systems</span>
+          <span class="pin-tag">SAP / ERP basics</span>
+          <span class="pin-tag">Six Sigma toolset</span>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-top">
+          <span class="layer-tag">L5</span>
+          <h3>Commissioning &amp; Field Ops</h3>
+        </div>
+        <p>Bring the system up on-site and keep it observable once it's live.</p>
+        <div class="pins">
+          <span class="pin-tag">PLC ladder logic</span>
+          <span class="pin-tag">Siemens TIA Portal</span>
+          <span class="pin-tag">Rockwell Studio 5000</span>
+          <span class="pin-tag">SCADA / HMI config</span>
+          <span class="pin-tag">Modbus / CAN / MQTT</span>
+        </div>
+      </div>
+
+      <div class="layer">
+        <div class="layer-top">
+          <span class="layer-tag">L6</span>
+          <h3>Data, Docs &amp; Collaboration</h3>
+        </div>
+        <p>Make the work traceable — for auditors, teammates, and future you.</p>
+        <div class="pins">
+          <span class="pin-tag">Git / version control</span>
+          <span class="pin-tag">JIRA</span>
+          <span class="pin-tag">Confluence</span>
+          <span class="pin-tag">Excel / Python (pandas)</span>
+          <span class="pin-tag">Requirement traceability</span>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <span>ECE // Career Brief</span>
+    <span>End of File</span>
+  </footer>
+
+</div>
+
+</body>
+</html>
